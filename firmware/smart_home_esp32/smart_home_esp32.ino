@@ -32,7 +32,7 @@ const char* WIFI_PASS = WIFI_PASS_SECRET;
 // No trailing slash.
 // LOCAL  : "http://10.250.164.58:8000"           (laptop LAN IP)
 // ONLINE : "http://smarthome24.pythonanywhere.com"   (PythonAnywhere, plain http — no cert needed)
-const char* SERVER_BASE = "http://10.250.164.58:8000";
+const char* SERVER_BASE = "http://smarthome24.pythonanywhere.com";
 
 const String TELEMETRY_URL = String(SERVER_BASE) + "/api/telemetry/";
 const String CONTROL_URL   = String(SERVER_BASE) + "/api/control/";

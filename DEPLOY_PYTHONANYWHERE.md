@@ -1,13 +1,13 @@
 # Deploying to PythonAnywhere
 
-Replace `USERNAME` with your PythonAnywhere username and `GITHUB_USER/REPO` with your repo everywhere below.
+Replace `smarthome24` with your PythonAnywhere username and `asishproject24/smart-home` with your repo everywhere below.
 
 ## 1. Get the code onto PythonAnywhere
 
 Open a **Bash console** (Dashboard → Consoles → Bash):
 
 ```bash
-git clone https://github.com/GITHUB_USER/REPO.git smarthome
+git clone https://github.com/asishproject24/smart-home.git smarthome
 cd smarthome/backend
 python3.10 -m venv venv
 source venv/bin/activate
@@ -19,7 +19,7 @@ python manage.py createsuperuser        # optional, for /admin
 ## 2. Create the web app
 
 Dashboard → **Web** → **Add a new web app**
-- Domain: `USERNAME.pythonanywhere.com`
+- Domain: `smarthome24.pythonanywhere.com`
 - Framework: **Manual configuration** (NOT the "Django" option)
 - Python version: **3.10**
 
@@ -29,9 +29,9 @@ On the Web tab, set:
 
 | Setting | Value |
 |---|---|
-| Source code | `/home/USERNAME/smarthome/backend` |
-| Working directory | `/home/USERNAME/smarthome/backend` |
-| Virtualenv | `/home/USERNAME/smarthome/backend/venv` |
+| Source code | `/home/smarthome24/smarthome/backend` |
+| Working directory | `/home/smarthome24/smarthome/backend` |
+| Virtualenv | `/home/smarthome24/smarthome/backend/venv` |
 
 ## 4. WSGI file
 
@@ -40,14 +40,14 @@ Web tab → click the **WSGI configuration file** link, delete everything, paste
 ```python
 import os, sys
 
-path = '/home/USERNAME/smarthome/backend'
+path = '/home/smarthome24/smarthome/backend'
 if path not in sys.path:
     sys.path.insert(0, path)
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'smarthome.settings'
 os.environ['DJANGO_SECRET_KEY'] = 'put-a-long-random-string-here'
 os.environ['DJANGO_DEBUG'] = '0'
-os.environ['DJANGO_ALLOWED_HOSTS'] = 'USERNAME.pythonanywhere.com'
+os.environ['DJANGO_ALLOWED_HOSTS'] = 'smarthome24.pythonanywhere.com'
 
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
@@ -57,9 +57,9 @@ Save, then Web tab → green **Reload** button.
 
 ## 5. Test
 
-- Dashboard: `https://USERNAME.pythonanywhere.com/`
-- API: `https://USERNAME.pythonanywhere.com/api/state/`
-- Admin: `https://USERNAME.pythonanywhere.com/admin/`
+- Dashboard: `https://smarthome24.pythonanywhere.com/`
+- API: `https://smarthome24.pythonanywhere.com/api/state/`
+- Admin: `https://smarthome24.pythonanywhere.com/admin/`
 
 If something breaks: Web tab → **Error log**.
 
@@ -68,7 +68,7 @@ If something breaks: Web tab → **Error log**.
 In `firmware/smart_home_esp32/smart_home_esp32.ino`:
 
 ```cpp
-const char* SERVER_BASE = "http://USERNAME.pythonanywhere.com";
+const char* SERVER_BASE = "http://smarthome24.pythonanywhere.com";
 ```
 
 Plain `http://` works and needs no certificate on the ESP32. Keep **Force HTTPS** switched **off** on the Web tab

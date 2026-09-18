@@ -31,7 +31,7 @@ const char* WIFI_PASS = WIFI_PASS_SECRET;
 // NOT 127.0.0.1 — the ESP32 needs to reach your computer over the network.
 // No trailing slash.
 // LOCAL  : "http://10.250.164.58:8000"           (laptop LAN IP)
-// ONLINE : "http://USERNAME.pythonanywhere.com"   (PythonAnywhere, plain http — no cert needed)
+// ONLINE : "http://smarthome24.pythonanywhere.com"   (PythonAnywhere, plain http — no cert needed)
 const char* SERVER_BASE = "http://10.250.164.58:8000";
 
 const String TELEMETRY_URL = String(SERVER_BASE) + "/api/telemetry/";

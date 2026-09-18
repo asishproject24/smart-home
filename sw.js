@@ -1,7 +1,7 @@
 /* Smart Home Control System — Service Worker
    Caches the app shell so the dashboard installs & opens offline.
    API calls always go to the network (fresh data), never cached. */
-const CACHE = 'smarthome-v2';
+const CACHE = 'smarthome-v3';
 const SHELL = [
   '/', '/index.html', '/styles.css', '/script.js',
   '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'

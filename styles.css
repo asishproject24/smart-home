@@ -69,8 +69,9 @@ body {
     position: fixed; inset: 0; z-index: 150;
     background: rgba(0,0,0,0.55); backdrop-filter: blur(2px);
     opacity: 0; transition: opacity 0.3s;
+    pointer-events: none;          /* never block taps while hidden */
 }
-.sidebar-overlay.show { opacity: 1; }
+.sidebar-overlay.open { opacity: 1; pointer-events: auto; }
 .header-brand { display: flex; align-items: center; gap: 14px; }
 .header-brand .logo {
     display: flex; align-items: center; justify-content: center;

@@ -18,32 +18,33 @@ def format_uptime(ms):
     return f'{d}d {h}h {m}m'
 
 
-def status_labels(r):
+def status_labels(r, th):
     """Human-readable status strings shown on the sensor cards."""
-    temp = ('Hot' if r.temperature >= 35 else 'Warm' if r.temperature >= 28 else
+    temp = ('Hot' if r.temperature >= th.temp_on + 5 else 'Warm' if r.temperature >= th.temp_on - 2 else
             'Normal' if r.temperature >= 18 else 'Cold')
-    hum = ('High' if r.humidity > settings.HUMIDITY_ALERT else
+    hum = ('High' if r.humidity > th.humidity_alert else
            'Comfortable' if r.humidity >= 30 else 'Dry')
-    light = ('Bright' if r.ldr >= settings.LIGHT_ALERT_LUX else 'Dim')
+    light = ('Bright' if r.ldr >= th.light_on_lux else 'Dim')
     fan = ('Running' if r.fan_speed > 0 else 'Stopped')
     return {'temperature': temp, 'humidity': hum, 'ldr': light, 'fan': fan}
 
 
-def evaluate_alerts(r):
-    """Return active-alert dicts for a reading and log new ones (deduped)."""
+def evaluate_alerts(r, th):
+    """Return active-alert dicts for a reading and log new ones (deduped).
+    Thresholds come from DeviceState (editable on the dashboard)."""
     active = []
-    if r.temperature > settings.TEMP_ALERT_C:
+    if r.temperature > th.temp_on:
         active.append(dict(alert_type='high-temp', color='#ef5350',
                            title='High Temperature Alert',
-                           description=f'Temperature is above {settings.TEMP_ALERT_C}°C'))
-    if r.humidity > settings.HUMIDITY_ALERT:
+                           description=f'Temperature is above {th.temp_on:g}°C'))
+    if r.humidity > th.humidity_alert:
         active.append(dict(alert_type='high-humidity', color='#ffa726',
                            title='High Humidity Alert',
-                           description=f'Humidity is above {settings.HUMIDITY_ALERT}%'))
-    if r.ldr < settings.LIGHT_ALERT_LUX:
+                           description=f'Humidity is above {th.humidity_alert}%'))
+    if r.ldr < th.light_on_lux:
         active.append(dict(alert_type='low-light', color='#ffee58',
                            title='Low Light Alert',
-                           description=f'Light intensity is below {settings.LIGHT_ALERT_LUX} lux'))
+                           description=f'Light intensity is below {th.light_on_lux} lux'))
 
     # Log to history, but not more than once per 2 min per type.
     cutoff = timezone.now() - timedelta(minutes=2)
@@ -78,7 +79,7 @@ def telemetry(request):
         state.fan_speed = int(d.get('fan_speed', state.fan_speed))
         state.save()
 
-    evaluate_alerts(reading)
+    evaluate_alerts(reading, state)
     return Response(DeviceStateSerializer(state).data)
 
 
@@ -92,6 +93,17 @@ def control(request):
                 setattr(state, f, bool(request.data[f]))
         if 'fan_speed' in request.data:
             state.fan_speed = max(0, min(100, int(request.data['fan_speed'])))
+        # automation thresholds
+        if 'temp_on' in request.data:
+            state.temp_on = max(10.0, min(50.0, float(request.data['temp_on'])))
+        if 'temp_full' in request.data:
+            state.temp_full = max(15.0, min(60.0, float(request.data['temp_full'])))
+        if state.temp_full <= state.temp_on:
+            state.temp_full = state.temp_on + 5
+        if 'light_on_lux' in request.data:
+            state.light_on_lux = max(0, min(1000, int(request.data['light_on_lux'])))
+        if 'humidity_alert' in request.data:
+            state.humidity_alert = max(0, min(100, int(request.data['humidity_alert'])))
         state.save()
     return Response(DeviceStateSerializer(state).data)
 
@@ -101,7 +113,7 @@ def state(request):
     """Everything the dashboard needs in one poll."""
     dev = DeviceState.load()
     latest = SensorReading.objects.first()
-    alerts_active = evaluate_alerts(latest) if latest else []
+    alerts_active = evaluate_alerts(latest, dev) if latest else []
 
     data = {
         'device': DeviceStateSerializer(dev).data,
@@ -120,5 +132,5 @@ def state(request):
             'signal': latest.signal,
             'updated_at': latest.created_at,
         }
-        data['status'] = status_labels(latest)
+        data['status'] = status_labels(latest, dev)
     return Response(data)

@@ -7,6 +7,11 @@ class DeviceState(models.Model):
     fan_on     = models.BooleanField(default=True)
     fan_speed  = models.PositiveSmallIntegerField(default=65)   # %
     auto_mode  = models.BooleanField(default=True)
+    # Automation thresholds (editable from the dashboard, pushed to the ESP32)
+    temp_on       = models.FloatField(default=30)                   # fan ON above this °C
+    temp_full     = models.FloatField(default=40)                   # fan reaches 100 % at this °C
+    light_on_lux  = models.PositiveSmallIntegerField(default=200)   # light ON below this lux
+    humidity_alert = models.PositiveSmallIntegerField(default=60)   # alert above this %
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

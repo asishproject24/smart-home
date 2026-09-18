@@ -293,10 +293,19 @@
 <section id="page-automation" class="page-section">
     <div class="page-header"><h2><svg class="ic"><use href="#ic-gear"/></svg> Automation Rules</h2><p>Configure smart automation for your home</p></div>
     <div class="automation-grid">
-        <div class="card rule-card"><div class="rule-header"><span class="rule-name"><svg class="ic"><use href="#ic-thermometer"/></svg> Temperature Auto Fan</span><span class="rule-status enabled">Enabled</span></div><div class="rule-desc">Automatically turn on fan when temperature exceeds 30°C</div></div>
-        <div class="card rule-card"><div class="rule-header"><span class="rule-name"><svg class="ic"><use href="#ic-bulb"/></svg> Auto Light</span><span class="rule-status enabled">Enabled</span></div><div class="rule-desc">Turn on lights when LDR reads below 200 lux</div></div>
+        <div class="card rule-card"><div class="rule-header"><span class="rule-name"><svg class="ic"><use href="#ic-thermometer"/></svg> Temperature Auto Fan</span><span class="rule-status enabled">Enabled</span></div><div class="rule-desc">Automatically turn on fan when temperature exceeds <b id="rule-temp-on">30</b>°C, reaching 100% at <b id="rule-temp-full">40</b>°C</div></div>
+        <div class="card rule-card"><div class="rule-header"><span class="rule-name"><svg class="ic"><use href="#ic-bulb"/></svg> Auto Light</span><span class="rule-status enabled">Enabled</span></div><div class="rule-desc">Turn on lights when LDR reads below <b id="rule-lux">200</b> lux</div></div>
+        <div class="card rule-card threshold-card">
+            <div class="rule-header"><span class="rule-name"><svg class="ic"><use href="#ic-sliders"/></svg> Automation Thresholds</span><span class="rule-status enabled">Editable</span></div>
+            <div class="rule-desc">Set when Automatic mode switches devices. Saved to the server and picked up by the ESP32 within a second.</div>
+            <div class="th-row"><label for="th-temp-on">Fan ON above</label><input type="number" id="th-temp-on" min="10" max="50" step="0.5" value="30"><span>°C</span></div>
+            <div class="th-row"><label for="th-temp-full">Fan 100% at</label><input type="number" id="th-temp-full" min="15" max="60" step="0.5" value="40"><span>°C</span></div>
+            <div class="th-row"><label for="th-lux">Light ON below</label><input type="number" id="th-lux" min="0" max="1000" step="10" value="200"><span>lux</span></div>
+            <div class="th-row"><label for="th-hum">Humidity alert above</label><input type="number" id="th-hum" min="0" max="100" step="1" value="60"><span>%</span></div>
+            <button id="th-save" class="th-save-btn">Save Thresholds</button>
+        </div>
         <div class="card rule-card"><div class="rule-header"><span class="rule-name"><svg class="ic"><use href="#ic-info"/></svg> Night Mode</span><span class="rule-status disabled">Disabled</span></div><div class="rule-desc">Dim all lights and reduce fan speed after 10 PM</div></div>
-        <div class="card rule-card"><div class="rule-header"><span class="rule-name"><svg class="ic"><use href="#ic-droplet"/></svg> Humidity Alert</span><span class="rule-status enabled">Enabled</span></div><div class="rule-desc">Send alert when humidity exceeds 70%</div></div>
+        <div class="card rule-card"><div class="rule-header"><span class="rule-name"><svg class="ic"><use href="#ic-droplet"/></svg> Humidity Alert</span><span class="rule-status enabled">Enabled</span></div><div class="rule-desc">Send alert when humidity exceeds <b id="rule-hum">60</b>%</div></div>
         <div class="card rule-card"><div class="rule-header"><span class="rule-name"><svg class="ic"><use href="#ic-bolt"/></svg> Energy Saver</span><span class="rule-status disabled">Disabled</span></div><div class="rule-desc">Reduce power consumption during peak hours</div></div>
         <div class="card rule-card"><div class="rule-header"><span class="rule-name"><svg class="ic"><use href="#ic-lock"/></svg> Security Mode</span><span class="rule-status enabled">Enabled</span></div><div class="rule-desc">Lock all doors and activate cameras at midnight</div></div>
     </div>
@@ -318,8 +327,8 @@
 <section id="page-settings" class="page-section">
     <div class="page-header"><h2><svg class="ic"><use href="#ic-gear"/></svg> Settings</h2><p>Configure your smart home system</p></div>
     <div class="settings-grid">
-        <div class="card"><div class="setting-group"><h4>Network</h4><div class="setting-row"><div><div class="s-label">Wi-Fi SSID</div><div class="s-desc">SmartHome_Network</div></div></div><div class="setting-row"><div><div class="s-label">IP Address</div><div class="s-desc">192.168.1.105</div></div></div></div></div>
-        <div class="card"><div class="setting-group"><h4>Thresholds</h4><div class="setting-row"><div><div class="s-label">Temperature Alert</div><div class="s-desc">Above 30°C</div></div></div><div class="setting-row"><div><div class="s-label">Humidity Alert</div><div class="s-desc">Above 70%</div></div></div><div class="setting-row"><div><div class="s-label">Light Alert</div><div class="s-desc">Below 200 lux</div></div></div></div></div>
+        <div class="card"><div class="setting-group"><h4>Network</h4><div class="setting-row"><div><div class="s-label">Server</div><div class="s-desc" id="set-server">—</div></div></div><div class="setting-row"><div><div class="s-label">ESP32 Signal</div><div class="s-desc" id="set-signal">—</div></div></div></div></div>
+        <div class="card"><div class="setting-group"><h4>Thresholds</h4><div class="setting-row"><div><div class="s-label">Temperature Alert / Fan ON</div><div class="s-desc">Above <span id="set-temp-on">30</span>°C</div></div></div><div class="setting-row"><div><div class="s-label">Humidity Alert</div><div class="s-desc">Above <span id="set-hum">60</span>%</div></div></div><div class="setting-row"><div><div class="s-label">Light Alert / Light ON</div><div class="s-desc">Below <span id="set-lux">200</span> lux</div></div></div></div></div>
     </div>
 </section>
 

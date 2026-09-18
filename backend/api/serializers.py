@@ -5,7 +5,8 @@ from .models import DeviceState, SensorReading, Alert
 class DeviceStateSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeviceState
-        fields = ['light_on', 'fan_on', 'fan_speed', 'auto_mode', 'updated_at']
+        fields = ['light_on', 'fan_on', 'fan_speed', 'auto_mode',
+                  'temp_on', 'temp_full', 'light_on_lux', 'humidity_alert', 'updated_at']
 
 
 class SensorReadingSerializer(serializers.ModelSerializer):

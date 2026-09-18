@@ -4,7 +4,7 @@ from .models import DeviceState, SensorReading, Alert
 
 @admin.register(DeviceState)
 class DeviceStateAdmin(admin.ModelAdmin):
-    list_display = ('light_on', 'fan_on', 'fan_speed', 'auto_mode', 'updated_at')
+    list_display = ('light_on', 'fan_on', 'fan_speed', 'auto_mode', 'temp_on', 'light_on_lux', 'updated_at')
 
 
 @admin.register(SensorReading)

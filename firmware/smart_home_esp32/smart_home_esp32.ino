@@ -52,10 +52,12 @@ const bool LDR_INVERTED = true;
 #define FAN_IN1     26     // -> IN1  (direction)
 #define FAN_IN2     13     // -> IN2  (direction)
 
-/* ══════════════ 3. THRESHOLDS (local auto-mode fallback) ══════ */
-const float TEMP_ON      = 30.0;   // fan turns on above this °C
-const float TEMP_FULL    = 40.0;   // fan reaches 100% at this °C
-const int   LIGHT_ON_LUX = 200;    // light turns on below this lux
+/* ══════════════ 3. THRESHOLDS (defaults — the dashboard can change them) ══════ */
+// These are updated from the server's device state (temp_on / temp_full /
+// light_on_lux), so the values below only matter until the first reply arrives.
+float TEMP_ON      = 30.0;   // fan turns on above this °C
+float TEMP_FULL    = 40.0;   // fan reaches 100% at this °C
+int   LIGHT_ON_LUX = 200;    // light turns on below this lux
 
 /* ══════════════ 4. FAN PWM (LEDC) ══════════════ */
 const int FAN_CH   = 0;
@@ -121,8 +123,9 @@ void loop() {
       lightOn = (lux < LIGHT_ON_LUX);
       if (temp > TEMP_ON) {
         fanOn    = true;
-        fanSpeed = map((int)constrain(temp, TEMP_ON, TEMP_FULL),
-                       (int)TEMP_ON, (int)TEMP_FULL, 40, 100);
+        // linear 40 % at TEMP_ON → 100 % at TEMP_FULL
+        float t = constrain(temp, TEMP_ON, TEMP_FULL);
+        fanSpeed = (int)(40 + (t - TEMP_ON) * 60.0 / (TEMP_FULL - TEMP_ON));
       } else {
         fanOn    = false;
         fanSpeed = 0;
@@ -183,6 +186,12 @@ bool applyServerState(JsonDocument& in) {
   bool prevLight = lightOn, prevFan = fanOn, prevAuto = autoMode;
   int  prevSpeed = fanSpeed;
 
+  // Automation thresholds set on the dashboard (Automation page)
+  TEMP_ON      = in["temp_on"]      | TEMP_ON;
+  TEMP_FULL    = in["temp_full"]    | TEMP_FULL;
+  LIGHT_ON_LUX = in["light_on_lux"] | LIGHT_ON_LUX;
+  if (TEMP_FULL <= TEMP_ON) TEMP_FULL = TEMP_ON + 5;
+
   autoMode = in["auto_mode"] | autoMode;
   if (!autoMode) {                       // manual: obey server
     lightOn  = in["light_on"]  | lightOn;
@@ -207,7 +216,7 @@ void fetchControl() {
   int code = http.GET();
 
   if (code == 200) {
-    StaticJsonDocument<320> in;
+    StaticJsonDocument<512> in;
     if (deserializeJson(in, http.getString()) == DeserializationError::Ok) {
       if (applyServerState(in))
         Serial.printf("[ctrl] light=%d fan=%d/%d%% %s\n",
@@ -244,7 +253,7 @@ void sendTelemetry(float temp, float hum, int lux) {
 
   if (code == 200) {
     String resp = http.getString();
-    StaticJsonDocument<320> in;
+    StaticJsonDocument<512> in;
     if (deserializeJson(in, resp) == DeserializationError::Ok)
       applyServerState(in);
     Serial.printf("[%d] T=%.1f H=%.0f L=%d  light=%d fan=%d/%d%% %s\n",

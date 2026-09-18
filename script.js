@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         lightOn: true,
         fanOn: true,
         autoMode: true,
+        thresholds: { temp_on: 30, temp_full: 40, light_on_lux: 200, humidity_alert: 60 },
         wifiConnected: false,
         signalStrength: 0,
         uptime: '0d 0h 0m',
@@ -124,6 +125,37 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     fanSlider.style.setProperty('--val', state.fanSpeed + '%');
 
+    // ── Automation thresholds (Automation page) ──
+    const thInputs = { temp_on: 'th-temp-on', temp_full: 'th-temp-full', light_on_lux: 'th-lux', humidity_alert: 'th-hum' };
+    let thEditing = false;
+    Object.values(thInputs).forEach(id => {
+        const el = document.getElementById(id);
+        el.addEventListener('focus', () => thEditing = true);
+        el.addEventListener('blur', () => thEditing = false);
+    });
+    function renderThresholds() {
+        const t = state.thresholds;
+        if (!thEditing) for (const [k, id] of Object.entries(thInputs)) document.getElementById(id).value = t[k];
+        document.getElementById('rule-temp-on').textContent = t.temp_on;
+        document.getElementById('rule-temp-full').textContent = t.temp_full;
+        document.getElementById('rule-lux').textContent = t.light_on_lux;
+        document.getElementById('rule-hum').textContent = t.humidity_alert;
+        document.getElementById('set-temp-on').textContent = t.temp_on;
+        document.getElementById('set-lux').textContent = t.light_on_lux;
+        document.getElementById('set-hum').textContent = t.humidity_alert;
+    }
+    document.getElementById('th-save').addEventListener('click', () => {
+        const payload = {};
+        for (const [k, id] of Object.entries(thInputs)) payload[k] = parseFloat(document.getElementById(id).value);
+        if (payload.temp_full <= payload.temp_on) { showToast('"Fan 100% at" must be higher than "Fan ON above"'); return; }
+        Object.assign(state.thresholds, payload);
+        renderThresholds();
+        sendControl(payload);
+        showToast('Thresholds saved — ESP32 will apply them shortly');
+    });
+    renderThresholds();
+    document.getElementById('set-server').textContent = API_BASE;
+
     // ── Mode Buttons ──
     document.querySelectorAll('.mode-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -210,6 +242,12 @@ document.addEventListener('DOMContentLoaded', () => {
         state.lightOn = dev.light_on;
         state.fanOn = dev.fan_on;
         state.fanSpeed = dev.fan_speed;
+        if (dev.temp_on !== undefined) {
+            state.thresholds = { temp_on: dev.temp_on, temp_full: dev.temp_full,
+                                 light_on_lux: dev.light_on_lux, humidity_alert: dev.humidity_alert };
+            renderThresholds();
+        }
+        document.getElementById('set-signal').textContent = sensors ? sensors.signal + '%' : '—';
 
         // — Sensor values —
         if (sensors) {

@@ -1,0 +1,12 @@
+# Python / Django
+__pycache__/
+*.pyc
+backend/venv/
+backend/myenv/
+backend/db.sqlite3
+*.log
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+firmware/smart_home_esp32/secrets.h
